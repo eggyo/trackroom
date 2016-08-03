@@ -11,6 +11,25 @@ if (!databaseUri) {
   console.log('DATABASE_URI not specified, falling back to localhost.');
 }
 
+var ParseDashboard = require('parse-dashboard');
+var allowInsecureHTTP = true;
+var dashboard = new ParseDashboard({
+  "apps": [
+    {
+      "serverURL": "http://trackroom.herokuapp.com/parse",
+      "appId": "myAppId",
+      "masterKey": "myMasterKey",
+      "appName": "Trackroom"
+    }
+  ],
+  "users": [
+    {
+      "user":"admin",
+      "pass":"pass"
+    }
+    ]
+}, allowInsecureHTTP);
+
 var api = new ParseServer({
   databaseURI: databaseUri || 'mongodb://localhost:27017/dev',
   cloud: process.env.CLOUD_CODE_MAIN || __dirname + '/cloud/main.js',
@@ -29,6 +48,7 @@ var app = express();
 
 // Serve static assets from the /public folder
 app.use('/public', express.static(path.join(__dirname, '/public')));
+app.use('/dashboard', dashboard);
 
 // Serve the Parse API on the /parse URL prefix
 var mountPath = process.env.PARSE_MOUNT || '/parse';
@@ -43,6 +63,9 @@ app.get('/', function(req, res) {
 // Remove this before launching your app
 app.get('/test', function(req, res) {
   res.sendFile(path.join(__dirname, '/public/test.html'));
+});
+app.get('/map', function(req, res) {
+  res.sendFile(path.join(__dirname, '/public/map.html'));
 });
 
 var port = process.env.PORT || 1337;
