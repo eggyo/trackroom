@@ -3,4 +3,4 @@ cd /Users/copperwired/documents/heroku/trackroom
 
 git add * -f
 git commit -am "v.1"
-git push heroku master
+git push origin master
