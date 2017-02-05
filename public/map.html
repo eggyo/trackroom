@@ -100,6 +100,23 @@ map.addListener('center_changed', function() {
           document.getElementById("info").innerHTML = 'bound :  '  +map.getBounds() +'   center: '+map.getCenter();
         });
 
+        var rectangle = new google.maps.Rectangle({
+                  strokeColor: '#FF0000',
+                  strokeOpacity:1,
+                  strokeWeight: 1,
+                  fillColor: '#FF0000',
+                  fillOpacity: 0.35,
+                  map: map,
+                  bounds: {
+                    north: 14.5030716916662,
+                    south: 14.2335771064304,
+                    east: 104.864553824416,
+                    west: 104.5863573938461
+                  }
+                });
+              }
+
+
       }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDiNtgqxj7iuldFVAPaoZIbUodon7wQRI8&callback=initMap"
