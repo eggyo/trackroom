@@ -15,16 +15,91 @@
       }
     </style>
   </head>
+  <p id="demo"></p>
+  <p id="info"></p>
+  <p id="dis"></p>
+
+
+
   <body>
     <div id="map"></div>
     <script>
+      Number.prototype.toRad = function() {
+         return this * Math.PI / 180;
+      }
+
+      Number.prototype.toDeg = function() {
+         return this * 180 / Math.PI;
+      }
+
+      function destinationPoint(start,brng,dist) {
+         dist = dist / 6371;
+         brng = brng.toRad();
+
+         var lat1 = start.lat().toRad(), lon1 = start.lng().toRad();
+
+         var lat2 = Math.asin(Math.sin(lat1) * Math.cos(dist) +
+                              Math.cos(lat1) * Math.sin(dist) * Math.cos(brng));
+
+         var lon2 = lon1 + Math.atan2(Math.sin(brng) * Math.sin(dist) *
+                                      Math.cos(lat1),
+                                      Math.cos(dist) - Math.sin(lat1) *
+                                      Math.sin(lat2));
+
+         if (isNaN(lat2) || isNaN(lon2)) return null;
+
+         return new google.maps.LatLng(lat2.toDeg(), lon2.toDeg());
+      }
+
+
+
+
       var map;
+      function distance(lat1, lon1, lat2, lon2, unit) {
+	var radlat1 = Math.PI * lat1/180
+	var radlat2 = Math.PI * lat2/180
+	var theta = lon1-lon2
+	var radtheta = Math.PI * theta/180
+	var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+	dist = Math.acos(dist)
+	dist = dist * 180/Math.PI
+	dist = dist * 60 * 1.1515
+	if (unit=="K") { dist = dist * 1.609344 }
+	if (unit=="N") { dist = dist * 0.8684 }
+	return dist
+}
+
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: 14.390, lng: 104.680},
           mapTypeId: 'satellite',
           zoom: 17
         });
+
+        var mp = 156543.03392 * Math.cos(14.390 * Math.PI / 180) / Math.pow(2, 17);
+        var diss = distance(14.390,104.680,14.390,104.681,"K");
+        document.getElementById("info").innerHTML = 'mp :  '  +mp;
+        var pointA = new google.maps.LatLng(14.390,104.680);
+        var pointB = destinationPoint(pointA,90, 0.34705750813545984);
+        document.getElementById("dis").innerHTML = 'dis :  '  +diss + 'pointB:' +pointB;
+
+
+var marker = new google.maps.Marker({
+         position: pointB,
+         map: map
+      });
+
+        map.addListener('click', function(event) {
+        var latitude = event.latLng.lat();
+    var longitude = event.latLng.lng();
+         document.getElementById("demo").innerHTML = 'loc :  '  +latitude +' , '+longitude;
+
+        });
+
+map.addListener('center_changed', function() {
+          document.getElementById("info").innerHTML = 'bound :  '  +map.getBounds() +'   center: '+map.getCenter();
+        });
+
       }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDiNtgqxj7iuldFVAPaoZIbUodon7wQRI8&callback=initMap"
