@@ -105,7 +105,7 @@ map.addListener('center_changed', function() {
                   strokeOpacity:1,
                   strokeWeight: 1,
                   fillColor: '#FF0000',
-                  fillOpacity: 0.35,
+                  fillOpacity: 0.3,
                   map: map,
                   bounds: {
                     north: 14.5030716916662,
@@ -115,23 +115,68 @@ map.addListener('center_changed', function() {
                   }
                 });
         // draw line
-        for (i = 0; i < 43 ; i++) {
-          //start pos
+        for (i = 0; i < 44 ; i++) {
+          //vertical
           var start = new google.maps.LatLng(14.5030716916662, 104.5863573938461);  //nw
           var endTop = destinationPoint(start,90, 0.69411501627092 * i);
           var endLow = new google.maps.LatLng(14.2335771064304, endTop.lng());
 
           var linesPos = [endTop,endLow];
-          var line = new google.maps.Polyline({
+          var lineX = new google.maps.Polyline({
                     path: linesPos,
                     geodesic: true,
+                    map:map,
                     strokeColor: '#FF0000',
                     strokeOpacity: 1.0,
                     strokeWeight: 1
                   });
 
-        line.setMap(map);
+ var endLeft = destinationPoint(start,180, 0.69411501627092 * i);
+          var endRight = new google.maps.LatLng(endLeft.lat(), 104.864553824416);
 
+                    var linesPos_Y = [endLeft,endRight];
+var lineY = new google.maps.Polyline({
+                    path: linesPos_Y,
+                    geodesic: true,
+                    map:map,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 1
+                  });
+
+                  for (j = 0; j < 43 ; j++) {
+
+          var rowPos = destinationPoint(endLeft,90, 0.69411501627092 * j);
+
+
+// center of grid
+          var centerX = destinationPoint(rowPos,90, 0.3470575081354598);
+          var centerY = destinationPoint(rowPos,180, 0.3470575081354598);
+          var center = new google.maps.LatLng(centerY.lat(),centerX.lng());
+
+
+		var c = new google.maps.Rectangle({
+                  strokeColor: '#FF0011',
+                  strokeOpacity:1,
+                  strokeWeight: 1,
+                  fillColor: '#FF0011',
+                  fillOpacity: 0.1,
+                  map: map,
+                  bounds: {
+                    north: center.lat() + 0.0001,
+                    south: center.lat() - 0.0001,
+                    east: center.lng() + 0.0001,
+                    west: center.lng() - 0.0001
+                  }
+                });
+
+c.addListener('click', function(event) {
+        var latitude = event.latLng.lat();
+    var longitude = event.latLng.lng();
+         document.getElementById("demo").innerHTML = 'grid loc :  '  +latitude +' , '+longitude;
+
+        });
+				}
         }
       }
     </script>
