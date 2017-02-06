@@ -114,9 +114,25 @@ map.addListener('center_changed', function() {
                     west: 104.5863573938461
                   }
                 });
-              
+        // draw line
+        for (i = 0; i < 43 ; i++) {
+          //start pos
+          var start = new google.maps.LatLng(14.5030716916662, 104.5863573938461);  //nw
+          var endTop = destinationPoint(start,90, 0.69411501627092 * i);
+          var endLow = new google.maps.LatLng(14.2335771064304, endTop.lng());
 
+          var linesPos = [endTop,endLow];
+          var line = new google.maps.Polyline({
+                    path: linesPos,
+                    geodesic: true,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 1
+                  });
 
+        line.setMap(map);
+
+        }
       }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDiNtgqxj7iuldFVAPaoZIbUodon7wQRI8&callback=initMap"
