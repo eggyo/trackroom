@@ -18,12 +18,29 @@
   <p id="demo"></p>
   <p id="info"></p>
   <p id="dis"></p>
+  <p id="eg"></p>
+
 
 
 
   <body>
     <div id="map"></div>
     <script>
+
+
+
+    var zoom_scale = 15;
+    var pic_size = 580;
+    var start_center_lat = 14.368796911275538;
+    var start_center_long = 104.72491979598999;
+	var grid_row_count = 12;
+    var map ;
+    var metrePerPixel = 156543.03392 * Math.cos(start_center_lat * Math.PI / 180) / Math.pow(2, zoom_scale);
+
+
+
+
+
       Number.prototype.toRad = function() {
          return this * Math.PI / 180;
       }
@@ -54,7 +71,7 @@
 
 
 
-      var map;
+
       function distance(lat1, lon1, lat2, lon2, unit) {
 	var radlat1 = Math.PI * lat1/180
 	var radlat2 = Math.PI * lat2/180
@@ -70,24 +87,23 @@
 }
 
       function initMap() {
+
         map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: 14.390, lng: 104.680},
           mapTypeId: 'satellite',
           zoom: 17
         });
 
-        var mp = 156543.03392 * Math.cos(14.390 * Math.PI / 180) / Math.pow(2, 17);
+
         var diss = distance(14.390,104.680,14.390,104.681,"K");
-        document.getElementById("info").innerHTML = 'mp :  '  +mp;
+        document.getElementById("info").innerHTML = 'metrePerPixel :  '  +metrePerPixel;
         var pointA = new google.maps.LatLng(14.390,104.680);
         var pointB = destinationPoint(pointA,90, 0.34705750813545984);
         document.getElementById("dis").innerHTML = 'dis :  '  +diss + 'pointB:' +pointB;
 
 
-var marker = new google.maps.Marker({
-         position: pointB,
-         map: map
-      });
+
+
 
         map.addListener('click', function(event) {
         var latitude = event.latLng.lat();
@@ -97,9 +113,9 @@ var marker = new google.maps.Marker({
         });
 
 map.addListener('center_changed', function() {
-          document.getElementById("info").innerHTML = 'bound :  '  +map.getBounds() +'   center: '+map.getCenter();
-        });
 
+        });
+/*
         var rectangle = new google.maps.Rectangle({
                   strokeColor: '#FF0000',
                   strokeOpacity:1,
@@ -113,13 +129,35 @@ map.addListener('center_changed', function() {
                     east: 104.864553824416,
                     west: 104.5863573938461
                   }
-                });
+                });*/
+
+        var startPoint = new google.maps.LatLng(start_center_lat, start_center_long);
+        var grid_w = ((pic_size * metrePerPixel)/1000) * (grid_row_count/2);
+        document.getElementById("info").innerHTML = 'grid_w :  '  +grid_w;
+
+
+        var start_n = destinationPoint(startPoint,0, grid_w);
+        var start_s = destinationPoint(startPoint,180, grid_w);
+        var start_e = destinationPoint(startPoint,90, grid_w);
+        var start_w = destinationPoint(startPoint,270, grid_w);
+
+		var marker = new google.maps.Marker({
+         position: startPoint,
+         map: map
+      	});
+document.getElementById("eg").innerHTML = 'start_n :  '  +start_n;
+
+
+		var line_w = (pic_size * metrePerPixel)/1000;
+
         // draw line
-        for (i = 0; i < 44 ; i++) {
+        for (i = 0; i < grid_row_count+1 ; i++) {
           //vertical
-          var start = new google.maps.LatLng(14.5030716916662, 104.5863573938461);  //nw
-          var endTop = destinationPoint(start,90, 0.69411501627092 * i);
-          var endLow = new google.maps.LatLng(14.2335771064304, endTop.lng());
+
+          var start = new google.maps.LatLng(start_n.lat(), start_w.lng());  //nw
+          /*
+          var endTop = destinationPoint(start,90, line_w * i);
+          var endLow = new google.maps.LatLng(start_s.lat(), endTop.lng());
 
           var linesPos = [endTop,endLow];
           var lineX = new google.maps.Polyline({
@@ -130,9 +168,9 @@ map.addListener('center_changed', function() {
                     strokeOpacity: 1.0,
                     strokeWeight: 1
                   });
-
- var endLeft = destinationPoint(start,180, 0.69411501627092 * i);
-          var endRight = new google.maps.LatLng(endLeft.lat(), 104.864553824416);
+*/
+ var endLeft = destinationPoint(start,180, line_w * i);
+          var endRight = new google.maps.LatLng(endLeft.lat(), start_e.lng());
 
                     var linesPos_Y = [endLeft,endRight];
 var lineY = new google.maps.Polyline({
@@ -144,14 +182,15 @@ var lineY = new google.maps.Polyline({
                     strokeWeight: 1
                   });
 
-                  for (j = 0; j < 43 ; j++) {
+			if (i != grid_row_count){
+            	for (j = 0; j < grid_row_count ; j++) {
 
-          var rowPos = destinationPoint(endLeft,90, 0.69411501627092 * j);
+          var rowPos = destinationPoint(endLeft,90, line_w * j);
 
 
 // center of grid
-          var centerX = destinationPoint(rowPos,90, 0.3470575081354598);
-          var centerY = destinationPoint(rowPos,180, 0.3470575081354598);
+          var centerX = destinationPoint(rowPos,90, line_w/2);
+          var centerY = destinationPoint(rowPos,180, line_w/2);
           var center = new google.maps.LatLng(centerY.lat(),centerX.lng());
 
 
@@ -177,6 +216,8 @@ c.addListener('click', function(event) {
 
         });
 				}
+            }
+
         }
       }
     </script>
